@@ -272,6 +272,13 @@ textarea.inp{resize:none}
 .chatrow{display:flex;gap:6px;width:100%}
 .chatrow .inp{flex:1;min-width:0;padding:8px 10px}
 .tbar{flex-wrap:wrap}
+.oauth{display:flex;align-items:center;justify-content:center;gap:10px;text-shadow:none}
+.oauth.g{background:#fff;color:#1f1f1f;border-color:#c9c9c9;box-shadow:0 3px 0 #c9c9c9}
+.oauth.f{background:#1877f2;color:#fff;border-color:#0d5bc4;box-shadow:0 3px 0 #0d5bc4}
+.ologo{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-family:Arial,sans-serif;font-weight:900;font-size:16px}
+.oauth.g .ologo{color:#4285f4;border:2px solid #4285f4}
+.oauth.f .ologo{background:#fff;color:#1877f2}
+.or{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--wood)}.or::before,.or::after{content:"";flex:1;height:1px;background:var(--cream-d)}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 
@@ -907,7 +914,7 @@ async function cloudInit(){
 async function afterLogin(user,name){
   let {data:p,error}=await sb.from('profiles').select('id,name').eq('id',user.id).maybeSingle();
   if(error)throw error;
-  if(!p){let nm=(name||(user.user_metadata&&user.user_metadata.name)||(user.email||'Spieler').split('@')[0]).slice(0,20);if(nm.length<2)nm+='_1';
+  if(!p){let nm=(name||(user.user_metadata&&(user.user_metadata.full_name||user.user_metadata.name||user.user_metadata.user_name))||(user.email||'Spieler').split('@')[0]).slice(0,20);if(nm.length<2)nm+='_1';
     const r=await sb.from('profiles').insert({id:user.id,name:nm,stars:S.stars}).select().single();if(r.error)throw r.error;p=r.data}
   me={id:user.id,name:p.name};
   const {data:sv}=await sb.from('saves').select('data').eq('user_id',me.id).maybeSingle();
@@ -929,6 +936,9 @@ function accountModal(){
     ${authErr?`<p class="err2">${esc(authErr)}</p>`:''}
     <button class="btn gold wide" onclick="saveCfg()">Verbinden</button><button class="btn wide" onclick="closeModal()">Offline weiterspielen</button>`);
   openModal(`<h3>${authMode==='login'?'Anmelden':'Konto erstellen'}</h3><p>Mit Konto spielst du in echten Teams und dein Spielstand ist auf jedem Gerät da.</p>
+    <button class="btn wide oauth g" onclick="oauth('google')"><span class="ologo">G</span>Mit Google anmelden</button>
+    <button class="btn wide oauth f" onclick="oauth('facebook')"><span class="ologo">f</span>Mit Facebook anmelden</button>
+    <div class="or"><span>oder mit E-Mail</span></div>
     ${authMode==='signup'?`<label class="fl" for="aName">Spielername<input id="aName" class="inp" maxlength="20" autocomplete="nickname" value="${esc(AF.name)}"></label>`:''}
     <label class="fl" for="aMail">E-Mail<input id="aMail" class="inp" type="email" autocomplete="email" value="${esc(AF.mail)}"></label>
     <label class="fl" for="aPw">Passwort<input id="aPw" class="inp" type="password" minlength="6" autocomplete="${authMode==='login'?'current-password':'new-password'}"></label>
@@ -960,6 +970,16 @@ async function doAuth(){
     }else{const {data,error}=await sb.auth.signInWithPassword({email:AF.mail,password:pw});if(error)throw error;await afterLogin(data.user)}
     closeModal();
   }catch(e){authErr=errMsg(e);accountModal()}
+}
+async function oauth(provider){
+  if(!sb)await cloudInit();
+  if(!sb){authErr='Keine Datenbank verbunden.';return accountModal()}
+  try{const {error}=await sb.auth.signInWithOAuth({provider,options:{redirectTo:location.origin+location.pathname}});if(error)throw error}
+  catch(e){authErr=/not enabled|Unsupported provider/i.test(e.message||'')?(provider==='google'?'Google':'Facebook')+'-Anmeldung ist noch nicht eingerichtet.':errMsg(e);accountModal()}
+}
+function oauthError(){
+  try{const q=new URLSearchParams(location.search+'&'+location.hash.slice(1));const d=q.get('error_description');
+    if(d){toast(/not enabled|Unsupported provider/i.test(d)?'Diese Anmeldung ist noch nicht eingerichtet.':'Anmeldung fehlgeschlagen: '+d);history.replaceState(null,'',location.pathname)}}catch(e){}
 }
 async function logout(){await cloudSaveNow();try{await sb.auth.signOut()}catch(e){}me=null;if(S.team&&S.team.cloud)S.team=null;cFeed=[];closeModal();toast('Abgemeldet – du spielst offline weiter')}
 
@@ -1149,7 +1169,7 @@ function start(data){
   setInterval(()=>{teamTick();if(tab==='team'&&!modalOpen()&&S.team&&!S.team.cloud&&document.activeElement.id!=='chatIn')renderTeam();if(cloudOn()&&tab==='team')cRefreshTab();renderBadges();save()},9000);
   setInterval(()=>{if(Math.random()<.35&&!modalOpen()){botHit(false);S.botAt=Date.now();renderAll();save()}},150000);
   renderAll();save();
-  cloudInit();
+  oauthError();cloudInit();
 }
 window.claude?.hot?.snapshot?.(()=>S);
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??null);
