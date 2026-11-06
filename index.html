@@ -21,10 +21,12 @@
   --display:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif;
   --body:"Nunito",system-ui,-apple-system,sans-serif;
   --sh:clamp(52px,9.2vh,84px);
-  color-scheme:dark;
+  color-scheme:only dark;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+svg{shape-rendering:geometricPrecision;text-rendering:geometricPrecision}
+body{-webkit-font-smoothing:antialiased}
 html,body{height:100%}
 body{background:var(--ink);color:var(--text);font-family:var(--body);font-weight:800;overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
@@ -68,7 +70,7 @@ button:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
 .reels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#5a160d;border-radius:12px;padding:6px}
 .reel{height:calc(var(--sh)*3);overflow:hidden;background:linear-gradient(#d9c7a3,#fff8e8 25%,#fff8e8 75%,#d9c7a3);border-radius:8px;position:relative}
 .reel::after{content:"";position:absolute;left:0;right:0;top:calc(var(--sh));height:var(--sh);border-block:2px dashed #c9a86a55;pointer-events:none}
-.strip{will-change:transform}
+.strip{}
 .cell{height:var(--sh);display:grid;place-items:center}
 .cell svg{height:78%;width:auto}
 .reel.win .cell:nth-child(2) svg{animation:pop .5s ease 2}
@@ -224,7 +226,7 @@ button:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
 .reel{background:linear-gradient(#cdb88f 0%,#fffaf0 22%,#ffffff 50%,#fffaf0 78%,#cdb88f 100%);box-shadow:inset 0 0 0 2px #0002}
 .reel::after{border:0;background:linear-gradient(90deg,transparent,#f6c44522,transparent)}
 .reel.win{box-shadow:inset 0 0 0 3px var(--brass),0 0 14px #f6c44599}
-.cell svg{height:80%;filter:drop-shadow(0 2px 0 #0002)}
+.cell svg{height:82%;width:auto;shape-rendering:geometricPrecision;overflow:visible}
 .payline{margin-top:8px;min-height:38px;background:#2a0b06;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;padding:4px 10px;font-family:var(--display);font-size:17px;color:#ffe08a;text-align:center;box-shadow:inset 0 2px 4px #0008}
 .payline svg{width:28px;height:28px;flex:none}
 .payline.hot{color:#fff;background:linear-gradient(90deg,#a86d10,#f6c445,#a86d10);text-shadow:0 2px 0 #6b3f00;animation:pop .45s ease 2}
@@ -472,7 +474,7 @@ function buildReels(o){
   if(o.k==='coin1'){let a,b;do{a=pick(nc);b=pick(nc)}while(a===b);const r=['coin',a,b];return r.sort(()=>Math.random()-.5)}
   let r;do{r=[pick(nc),pick(nc),pick(nc)]}while(r[0]===r[1]&&r[1]===r[2]);return r;
 }
-function setStrip(R,list){R.strip.style.transition='none';R.strip.style.transform='translateY(0)';R.strip.innerHTML=list.map(s=>`<div class="cell">${svg(s)}</div>`).join('')}
+function setStrip(R,list){R.strip.style.transition='none';R.strip.style.transform='none';R.strip.innerHTML=list.map(s=>`<div class="cell">${svg(s)}</div>`).join('')}
 function spinReel(R,final,dur){
   return new Promise(res=>{
     const n=18+Math.floor(dur/120);
