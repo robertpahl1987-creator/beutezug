@@ -945,7 +945,8 @@ function accountModal(){
     ${authErr?`<p class="err2">${esc(authErr)}</p>`:''}
     <button class="btn gold wide" id="aGo" onclick="doAuth()">${authMode==='login'?'Anmelden':'Registrieren'}</button>
     <button class="btn wide" onclick="authMode=authMode==='login'?'signup':'login';authErr='';accountModal()">${authMode==='login'?'Neu hier? Konto erstellen':'Ich habe schon ein Konto'}</button>
-    <div class="row"><button class="btn" onclick="closeModal()">Offline spielen</button><button class="btn red" onclick="resetCfg()">Andere Datenbank</button></div>`);
+    <div class="row"><button class="btn" onclick="closeModal()">Offline spielen</button><button class="btn red" onclick="resetCfg()">Andere Datenbank</button></div>
+    <p style="font-size:12px"><a href="https://robertpahl1987-creator.github.io/beutezug/datenschutz.html" target="_blank" rel="noopener" style="color:var(--wood)">Datenschutzerklärung</a></p>`);
 }
 async function saveCfg(){
   const url=$('cUrl').value.trim().replace(/\/$/,''),key=$('cKey').value.trim();
