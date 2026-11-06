@@ -746,15 +746,7 @@ function wheelPrize(w){
 /* ===================== Team ===================== */
 const FLAGS=[['#26232f','#d22','#f5c400'],['#3b7be0','#fff','#3b7be0'],['#43d3b1','#1b1733','#43d3b1'],['#ff6b57','#f2b632','#ff6b57'],['#7d4ee0','#f2b632','#7d4ee0'],['#3f9a55','#fff','#e0563f'],['#1d4a96','#f2b632','#1d4a96'],['#e85fb3','#fff','#e85fb3']];
 const flagCss=i=>{const f=FLAGS[i%FLAGS.length];return `background:linear-gradient(90deg,${f[0]} 33%,${f[1]} 33% 66%,${f[2]} 66%)`};
-const BOT_TEAMS=[
- {name:'Kiezbande Erkner',flag:0,desc:'Täglich aktiv, wir helfen uns mit Versuchen.',open:true,min:0,n:50,stars:12847251},
- {name:'Spreepiraten',flag:1,desc:'Entspannt spielen, Karten tauschen.',open:true,min:0,n:31,stars:4210500},
- {name:'Goldgräber Köpenick',flag:3,desc:'Nur aktive Spieler, Schloss jede Woche.',open:false,min:500,n:44,stars:9877120},
- {name:'Nachtschicht',flag:2,desc:'Für alle, die spät noch drehen.',open:true,min:0,n:18,stars:1320440},
- {name:'Waschbär-Clan',flag:4,desc:'Überfälle sind unser Hobby.',open:true,min:100,n:27,stars:3540900},
- {name:'Münzjäger 24',flag:6,desc:'Neue Spieler willkommen!',open:true,min:0,n:9,stars:210300},
- {name:'Schatzkammer Berlin',flag:7,desc:'Kartensammler unter sich.',open:false,min:2000,n:49,stars:15430800},
-];
+const BOT_TEAMS=[];
 const TALK=['Danke für die Versuche!','Wer hat noch doppelte Hafenkarten?','Gleich startet die Beutejagd','Hab gerade drei Goldsäcke gezogen','Bin heute Abend wieder online','Wir schaffen das Schloss noch','Moritz ist der Beste','Rache an Bodo ist erledigt','Hallo zusammen!'];
 let lobby='search',teamQ='',TD={name:'',desc:'',flag:0,open:true},teamErr='';
 const mates=()=>S.team?S.team.members.filter(n=>n!=='Du'):[];
@@ -842,7 +834,7 @@ function teamListHtml(){
   const q=teamQ.trim().toLowerCase();
   const src=cloudOn()?cTeams.map(t=>({name:t.name,flag:t.flag,desc:t.description,open:t.open,min:Number(t.min_stars),n:Number(t.member_count),stars:Number(t.stars)})):BOT_TEAMS;
   const l=src.map((t,i)=>({t,i})).filter(x=>cloudOn()||!q||x.t.name.toLowerCase().includes(q));
-  if(cloudOn()&&!cTeams.length&&!q)return `<p class="winfo">Noch keine Teams in der Datenbank. Gründe das erste!</p>`;
+  if(!src.length&&!q)return `<p class="winfo">Es gibt noch keine Teams. Gründe das erste!</p>`;
   if(!l.length)return `<p class="winfo">Kein Team mit „${esc(teamQ)}“ gefunden. Gründe doch einfach selbst eins.</p>`;
   return l.map(({t,i})=>`<div class="tcard"><div class="flag" style="${flagCss(t.flag)}"></div><div class="tc-main"><div class="nm">${esc(t.name)}</div><div class="sub">${esc(t.desc)}</div><div class="meta"><span>${t.n}/50 Mitglieder</span><span>${fmt(t.stars)} Sterne</span>${t.min?`<span>ab ${full(t.min)} Sterne</span>`:''}</div></div>
   <button class="btn ${t.open?'':'gold'}" onclick="joinTeam(${i})" ${t.n>=50||S.stars<t.min?'disabled':''}>${t.n>=50?'Voll':t.open?'Beitreten':'Anfragen'}</button></div>`).join('');
@@ -1135,6 +1127,7 @@ function updateAutoBtn(){$('spinBtn').classList.toggle('auto',auto);$('spinHint'
 function start(data){
   S=(data&&data.coins!=null)?Object.assign(fresh(),data):load();
   if(!S.rich)S.rich=newRich();
+  if(S.team&&!S.team.cloud&&!S.team.own){S.team=null;S.chat=[];S.myReq=null}
   // Zeit seit letztem Besuch
   const away=Date.now()-S.botAt,hits=Math.min(3,Math.floor(away/(20*6e4)));
   for(let i=0;i<hits;i++)botHit(true);S.botAt=Date.now();
