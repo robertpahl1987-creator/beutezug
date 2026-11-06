@@ -40,7 +40,7 @@ button:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
 #top{display:flex;gap:6px;align-items:center;padding-block:8px 6px}
 .pill{display:flex;align-items:center;gap:4px;background:var(--ink2);border:2px solid var(--line);border-radius:999px;padding:2px 10px 2px 2px;min-width:0;font-family:var(--display);font-size:15px}
 .pill svg{width:24px;height:24px;flex:none}
-.pill.coins{flex:1;min-width:92px}.pill.gems{flex:none}.pill{font-size:14px}
+.pill.coins{flex:1;min-width:92px}.pill.gems{flex:none}.pill{font-size:13px}#top{gap:5px}.mini{font-size:13px}
 .pill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini{display:flex;align-items:center;gap:2px;font-family:var(--display);font-size:14px}
 .mini svg{width:24px;height:24px}
@@ -304,6 +304,13 @@ textarea.inp{resize:none}
 .payline.hot{background:linear-gradient(90deg,#8a5a0e,#ffe08a 50%,#8a5a0e);background-size:200% 100%;animation:shimmer 1s linear 2}
 @keyframes shimmer{to{background-position:-200% 0}}
 .vscene{box-shadow:inset 0 -20px 30px #0003,0 6px 16px #0006}
+
+/* ===== HD ===== */
+.cell svg{height:86%}
+.reels{padding:10px 8px}
+.machine::after{content:"";position:absolute;inset:6px;border-radius:16px;background:linear-gradient(160deg,#ffffff22,transparent 30%);pointer-events:none}
+#app::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 80% at 50% 40%,transparent 60%,#05031088 100%);z-index:0}
+#top,#stage,#nav{position:relative;z-index:1}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 
@@ -329,6 +336,22 @@ textarea.inp{resize:none}
 <radialGradient id="gWheelA" cx="50%" cy="50%" r="60%"><stop offset=".35" stop-color="#fff6d8"/><stop offset="1" stop-color="#f6cf6a"/></radialGradient>
 <radialGradient id="gWheelB" cx="50%" cy="50%" r="60%"><stop offset=".35" stop-color="#ffe3a8"/><stop offset="1" stop-color="#e9a83a"/></radialGradient>
 <radialGradient id="gPurple" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#c9a6ff"/><stop offset=".5" stop-color="#8a5ce0"/><stop offset="1" stop-color="#3a1d78"/></radialGradient>
+<filter id="hd" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+<feGaussianBlur in="SourceAlpha" stdDeviation="2.4" result="b"/>
+<feSpecularLighting in="b" surfaceScale="5" specularConstant="1.1" specularExponent="26" lighting-color="#fffbe8" result="s"><fePointLight x="15" y="-25" z="90"/></feSpecularLighting>
+<feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+<feComposite in="SourceGraphic" in2="s2" operator="arithmetic" k1="0" k2="1" k3=".55" k4="0" result="lit"/>
+<feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="ib"/><feOffset in="ib" dx="-1.5" dy="-2" result="io"/>
+<feComposite in="SourceAlpha" in2="io" operator="out" result="rim"/><feFlood flood-color="#000" flood-opacity=".28"/><feComposite in2="rim" operator="in" result="rimDark"/>
+<feComposite in="rimDark" in2="lit" operator="over" result="lit2"/>
+<feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="sh"/><feOffset in="sh" dy="3.5" result="sho"/>
+<feFlood flood-color="#120a2a" flood-opacity=".5"/><feComposite in2="sho" operator="in" result="shadow"/>
+<feMerge><feMergeNode in="shadow"/><feMergeNode in="lit2"/></feMerge></filter>
+<filter id="hdB" x="-10%" y="-20%" width="120%" height="140%" color-interpolation-filters="sRGB">
+<feGaussianBlur in="SourceAlpha" stdDeviation="1.6" result="b"/>
+<feSpecularLighting in="b" surfaceScale="3" specularConstant=".7" specularExponent="18" lighting-color="#fff6dc" result="s"><fePointLight x="10" y="-30" z="100"/></feSpecularLighting>
+<feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+<feComposite in="SourceGraphic" in2="s2" operator="arithmetic" k1="0" k2="1" k3=".4" k4="0"/></filter>
 </defs></svg>
 <div id="app">
   <header id="top">
@@ -421,8 +444,28 @@ const ART={
   castle:`<rect x="14" y="40" width="72" height="50" fill="#d9cdb4" stroke="#6e5a3a" stroke-width="4"/><rect x="10" y="22" width="22" height="68" fill="#e8dcc2" stroke="#6e5a3a" stroke-width="4"/><rect x="68" y="22" width="22" height="68" fill="#e8dcc2" stroke="#6e5a3a" stroke-width="4"/><path d="M8 24 L21 6 L34 24Z M66 24 L79 6 L92 24Z" fill="#ff6b57" stroke="#b8392a" stroke-width="3"/><path d="M40 90 V66 Q50 54 60 66 V90Z" fill="#6e4422"/>`,
   boom:`<polygon points="50,4 60,34 92,22 72,48 96,66 62,66 66,96 46,72 24,92 30,62 4,56 30,42 14,14 42,30" fill="#ffd36b" stroke="#ff6b57" stroke-width="5" stroke-linejoin="round"/>`,
 };
-const svg=(k,cls='')=>`<svg viewBox="0 0 100 100" class="${cls}" aria-hidden="true">${ART[k]}</svg>`;
-const inner=(k,x,y,s)=>`<svg x="${x}" y="${y}" width="${s}" height="${s}" viewBox="0 0 100 100">${ART[k]}</svg>`;
+/* HD: jedes Symbol wird einmal mit Licht, Glanz und Schatten in hoher Auflösung gerendert */
+const HD={},HDPX=480;
+const artInner=k=>HD[k]?`<image href="${HD[k]}" x="-8" y="-8" width="116" height="116" preserveAspectRatio="xMidYMid meet"/>`:ART[k];
+const svg=(k,cls='')=>`<svg viewBox="0 0 100 100" class="${cls}" aria-hidden="true" style="overflow:visible">${artInner(k)}</svg>`;
+const inner=(k,x,y,s)=>`<svg x="${x}" y="${y}" width="${s}" height="${s}" viewBox="0 0 100 100" style="overflow:visible">${artInner(k)}</svg>`;
+function hdPrerender(){
+  const d=document.querySelector('svg defs');const defs=d?d.innerHTML:'';
+  return Promise.all(Object.keys(ART).map(k=>new Promise(res=>{
+    const src=`<svg xmlns="http://www.w3.org/2000/svg" width="${HDPX}" height="${HDPX}" viewBox="-8 -8 116 116"><defs>${defs}</defs><g filter="url(#hd)">${ART[k]}</g></svg>`;
+    const img=new Image();
+    img.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=HDPX;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(img,0,0,HDPX,HDPX);
+      if(c.toBlob)c.toBlob(b=>{try{HD[k]=b?URL.createObjectURL(b):c.toDataURL('image/png')}catch(e){}res()},'image/png');else{HD[k]=c.toDataURL('image/png');res()}}catch(e){res()}};
+    img.onerror=()=>res();
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(src);
+  })));
+}
+function paintIcons(){
+  $('icCoin').innerHTML=artInner('coin');$('icGem').innerHTML=artInner('gem');$('icStar').innerHTML=artInner('star');$('icShield').innerHTML=artInner('shield');
+  $('richIcon').innerHTML=artInner('mask');$('petIcon').innerHTML=artInner('fox');$('wheelIcon').innerHTML=artInner('wheel');
+  document.querySelectorAll('[data-ic]').forEach(e=>e.innerHTML=artInner(e.dataset.ic));
+  document.querySelectorAll('#top svg,#richIcon,#petIcon,#wheelIcon,[data-ic]').forEach(e=>e.style.overflow='visible');
+}
 
 function building(hue,lvl,idx,dmg){
   const c1=`hsl(${hue} 62% 66%)`,c1s=`hsl(${hue} 50% 50%)`,c2=`hsl(${hue} 50% 32%)`,roof=`hsl(${(hue+160)%360} 68% 54%)`,roofS=`hsl(${(hue+160)%360} 60% 40%)`;
@@ -438,7 +481,7 @@ function building(hue,lvl,idx,dmg){
   for(let r=0;r<lvl;r++)for(let j=0;j<2;j++){const wx=x+7+j*(w-23),wy=y+7+r*13;win+=`<rect x="${wx}" y="${wy}" width="11" height="8" rx="2" fill="#ffe08a" stroke="${c2}" stroke-width="2"/><path d="M${wx+5.5} ${wy} V${wy+8}" stroke="${c2}" stroke-width="1.5"/>`}
   const side=`<path d="M${x+w} ${y} L${x+w+d} ${y-6} V${94-6} L${x+w} 94Z" fill="${c1s}" stroke="${c2}" stroke-width="2" stroke-linejoin="round"/>`;
   const crack=dmg?`<path d="M${x+8} ${y+4} L${x+20} ${y+18} L${x+14} ${y+28} L${x+28} ${y+42}" stroke="#26232f" stroke-width="3" fill="none"/><circle cx="${x+w-6}" cy="${y-8}" r="10" fill="#5e5f6b" opacity=".75"/><circle cx="${x+w+4}" cy="${y-20}" r="8" fill="#8a8a96" opacity=".6"/><circle cx="${x+w-14}" cy="${y-22}" r="6" fill="#a5a5b0" opacity=".5"/>`:'';
-  return `<svg viewBox="0 0 110 110" aria-hidden="true"><ellipse cx="54" cy="96" rx="44" ry="9" fill="#0002"/>${side}<rect x="${x}" y="${y}" width="${w}" height="${94-y}" rx="2" fill="${c1}" stroke="${c2}" stroke-width="3"/><rect x="${x}" y="${y}" width="${w}" height="${94-y}" rx="2" fill="url(#gShadeH)"/><rect x="${x+3}" y="${y+3}" width="4" height="${94-y-6}" fill="#fff4"/>${top}${win}<path d="M44 94 V84 Q50 76 56 84 V94Z" fill="${c2}"/><circle cx="53.5" cy="88" r="1.3" fill="#f6c445"/>${crack}</svg>`;
+  return `<svg viewBox="0 0 110 110" aria-hidden="true"><g filter="url(#hdB)"><ellipse cx="54" cy="96" rx="44" ry="9" fill="#0002"/>${side}<rect x="${x}" y="${y}" width="${w}" height="${94-y}" rx="2" fill="${c1}" stroke="${c2}" stroke-width="3"/><rect x="${x}" y="${y}" width="${w}" height="${94-y}" rx="2" fill="url(#gShadeH)"/><rect x="${x+3}" y="${y+3}" width="4" height="${94-y-6}" fill="#fff4"/>${top}${win}<path d="M44 94 V84 Q50 76 56 84 V94Z" fill="${c2}"/><circle cx="53.5" cy="88" r="1.3" fill="#f6c445"/>${crack}</g></svg>`;
 }
 
 /* ===================== Daten ===================== */
@@ -1221,9 +1264,8 @@ function start(data){
   const away=Date.now()-S.botAt,hits=Math.min(3,Math.floor(away/(20*6e4)));
   for(let i=0;i<hits;i++)botHit(true);S.botAt=Date.now();
   regen();daily();seedTeam();
-  $('icCoin').innerHTML=ART.coin;$('icGem').innerHTML=ART.gem;$('icStar').innerHTML=ART.star;$('icShield').innerHTML=ART.shield;
-  $('richIcon').innerHTML=ART.mask;$('petIcon').innerHTML=ART.fox;$('wheelIcon').innerHTML=ART.wheel;
-  document.querySelectorAll('[data-ic]').forEach(e=>e.innerHTML=ART[e.dataset.ic]);
+  paintIcons();
+  hdPrerender().then(()=>{paintIcons();if(!spinning)REELS.forEach(R=>setStrip(R,R.vis));if(!wheelBusy)renderAll();if(modalOpen()&&atk==null&&rd==null){}});
   REELS.forEach(R=>setStrip(R,R.vis));fxInit();
   document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab));
   $('bell').onclick=logModal;$('acct').onclick=accountModal;$('payBtn').onclick=payModal;$('petChip').onclick=petModal;$('wheelChip').onclick=()=>go('wheel');
