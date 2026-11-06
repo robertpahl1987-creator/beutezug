@@ -886,7 +886,7 @@ function teamRequestCard(){
 
 /* ===================== Datenbank (Supabase) ===================== */
 // Trag hier deine Supabase-Daten ein – oder im Spiel über den Konto-Knopf oben.
-const CLOUD_DEFAULT={url:'',key:''};
+const CLOUD_DEFAULT={url:'https://kkvqltlowhpxiqqkxwiz.supabase.co',key:'sb_publishable_eRFuMcJJmx0bYGe3tpD2Mg_F9iLijd9'};
 let sb=null,me=null,cTeams=[],cFeed=[],cBusy=false,chatDraft='',authMode='login',authErr='',AF={mail:'',name:''};
 const cloudOn=()=>!!(sb&&me);
 const rpc=async(n,a)=>{const {data,error}=await sb.rpc(n,a);if(error)throw error;return data};
